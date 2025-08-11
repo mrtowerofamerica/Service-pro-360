@@ -3,7 +3,34 @@
 const $ = s => document.querySelector(s);
 const uid = () => 'id-' + Math.random().toString(36).slice(2) + '-' + Date.now();
 const fmt = d => new Date(d).toLocaleDateString();
+// --- debug banners ---
+const _build = msg => { const el = document.getElementById('build'); if (el) el.textContent = msg; };
+window.onerror = (msg, src, line, col, err) => {
+  const e = document.getElementById('err');
+  if (e) e.textContent = (err && err.message ? err.message : msg) + ' @' + line + ':' + col;
+};
+_build('App booting…');
 
+// --- tabs: wire up clicks safely ---
+const TABS = ['dashboard','customers','jobs','invoices','settings'];
+function showTab(tab) {
+  TABS.forEach(t => {
+    const v = document.getElementById(`view-${t}`);
+    if (v) v.classList.add('hidden');
+  });
+  const cur = document.getElementById(`view-${tab}`);
+  if (cur) cur.classList.remove('hidden');
+
+  document.querySelectorAll('.tabbar button').forEach(b => b.classList.remove('primary'));
+  const btn = document.querySelector(`.tabbar button[data-tab="${tab}"]`);
+  if (btn) btn.classList.add('primary');
+}
+document.querySelectorAll('.tabbar button').forEach(btn => {
+  btn.addEventListener('click', () => showTab(btn.dataset.tab));
+});
+// default tab
+showTab('dashboard');
+_build('UI ready');
 // minimal IndexedDB wrapper
 const db = (() => {
   const DB='sp360-db', VER=1; let _db;
