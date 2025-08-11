@@ -1,4 +1,4 @@
-// Service Pro 360 - simple offline cache
+const CACHE = 'sp360-v3';   // was sp360-v1 or v2
 const CACHE = 'sp360-v1';
 const ASSETS = [
   './',
