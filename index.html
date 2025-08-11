@@ -1,49 +1,47 @@
+// v9
+const VERSION = 'sp360-v9';
+const BASE = self.registration.scope; // e.g. https://<user>.github.io/Service-pro-360/
+const ASSETS = [
+  `${BASE}`,
+  `${BASE}index.html`,
+  `${BASE}app.js?v=9`,
+  `${BASE}manifest.json`,
+];
 
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="manifest" href="manifest.json">
-<title>Service Pro 360</title>
-<style>
-:root{--brand:#0ea5e9;--bg:#f8fafc;--card:#fff;--text:#0f172a;--muted:#64748b}
-*{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif}
-header{background:var(--brand);color:#fff;padding:14px 16px;position:sticky;top:0;display:flex;gap:12px;align-items:center}
-h1{font-size:18px;margin:0;flex:1}.container{padding:16px}.card{background:var(--card);border-radius:16px;padding:16px;box-shadow:0 10px 20px rgba(2,8,23,.06);margin-bottom:16px}
-.tabbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}.tabbar button{flex:1}
-button,input,select,textarea{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:12px;font-size:14px}
-button.primary{background:var(--brand);border:none;color:#fff;cursor:pointer}
-.list{list-style:none;margin:0;padding:0}.list li{padding:10px 0;border-bottom:1px solid #e5e7eb}
-.small{font-size:12px;color:var(--muted)}.hidden{display:none}.row{display:flex;gap:12px;flex-wrap:wrap}.row>*{flex:1;min-width:220px}
-</style>
-<script>
-if('serviceWorker'in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js'))}
-</script>
-</head>
-<body>
-<header>
-  <h1>Service Pro 360</h1>
-  <button id="btn-install">Install</button>
-  <select id="lang"><option value="en">EN</option><option value="es">ES</option></select>
-</header>
-<div class="container">
-  <div class="card">
-    <div class="tabbar">
-      <button class="primary" data-tab="dashboard">Dashboard</button>
-      <button data-tab="customers">Customers</button>
-      <button data-tab="jobs">Jobs</button>
-      <button data-tab="invoices">Invoices</button>
-      <button data-tab="settings">Settings</button>
-    </div>
-    <div id="view-dashboard"></div>
-    <div id="view-customers" class="hidden"></div>
-    <div id="view-jobs" class="hidden"></div>
-    <div id="view-invoices" class="hidden"></div>
-    <div id="view-settings" class="hidden"></div>
-  </div>
-  <footer class="small">Offline • EN/ES • GPS • Photos • 4-month scheduling</footer>
-</div>
-<script type="module" src="app.js"></script>
-</body>
-</html>
- 
+// Install: warm the cache
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(VERSION)
+      .then(c => c.addAll(ASSETS))
+      .then(() => self.skipWaiting())
+  );
+});
+
+// Activate: clear old caches
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.map(k => (k === VERSION ? null : caches.delete(k)))))
+      .then(() => self.clients.claim())
+  );
+});
+
+// Respond: network-first, then cache, fall back to error
+self.addEventListener('fetch', (e) => {
+  e.respondWith((async () => {
+    try {
+      const net = await fetch(e.request);
+      (await caches.open(VERSION)).put(e.request, net.clone());
+      return net;
+    } catch {
+      return (await caches.match(e.request)) || Response.error();
+    }
+  })());
+});
+
+// Let the page know when we’re ready + expose version
+self.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'PING') {
+    e.source.postMessage({type: 'SW_READY', version: VERSION});
+  }
+});
