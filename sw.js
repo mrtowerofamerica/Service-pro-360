@@ -1,5 +1,4 @@
-const CACHE = 'sp360-v6';   // bump when you want a fresh cache
-
+<script defer src="app.js?v=12"></script>
 const ASSETS = [
   './',
   './index.html',
