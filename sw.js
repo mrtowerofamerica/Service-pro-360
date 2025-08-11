@@ -1,5 +1,5 @@
-const CACHE = 'sp360-v3';   // was sp360-v1 or v2
-const CACHE = 'sp360-v1';
+
+const CACHE = 'sp360-v3';   // bump when you want a fresh cache
 const ASSETS = [
   './',
   './index.html',
