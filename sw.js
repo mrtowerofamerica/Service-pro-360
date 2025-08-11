@@ -1,5 +1,5 @@
+const CACHE = 'sp360-v6';   // bump when you want a fresh cache
 
-const CACHE = 'sp360-v3';   // bump when you want a fresh cache
 const ASSETS = [
   './',
   './index.html',
@@ -10,7 +10,7 @@ const ASSETS = [
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE)
-      .then((c) => c.addAll(ASSETS))
+      .then(c => c.addAll(ASSETS))
       .then(() => self.skipWaiting())
   );
 });
@@ -20,6 +20,9 @@ self.addEventListener('activate', (e) => {
     caches.keys().then(keys =>
       Promise.all(keys.map(k => (k === CACHE ? null : caches.delete(k))))
     ).then(() => self.clients.claim())
+     // announce the active SW so we can see it
+     .then(() => self.clients.matchAll({type:'window', includeUncontrolled:true}))
+     .then(clients => clients.forEach(c => c.postMessage({type:'SW_READY', version: CACHE})))
   );
 });
 
