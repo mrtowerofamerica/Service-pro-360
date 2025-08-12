@@ -4,32 +4,100 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Service Pro 360</title>
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#0f172a">
 
   <style>
-    :root{--brand:#0ea5e9;--bg:#f8fafc;--card:#fff;--text:#0f172a;--muted:#64748b}
-    *{box-sizing:border-box} html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Arial}
-    header{background:var(--brand);color:#fff;padding:14px 16px;position:sticky;top:0;display:flex;gap:12px;align-items:center;justify-content:space-between}
-    h1{font-size:18px;margin:0;line-height:1.2}
-    .container{max-width:840px;margin:16px auto;padding:16px}
-    .card{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 1px 6px rgba(2,8,23,.06)}
-    .tabbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-    button,select{border:1px solid #e2e8f0;background:#fff;border-radius:12px;padding:10px 14px;font-size:15px}
-    button.primary{background:var(--brand);color:#fff;border:none;cursor:pointer}
-    .hidden{display:none}
-    .row{display:flex;gap:12px;flex-wrap:wrap}
-    .small{font-size:12px;color:var(--muted);margin-top:6px}
-    #build{background:#fffbe6;border:1px solid #f59e0b;padding:8px;margin:12px 0;border-radius:10px}
-    #err{color:#991b1b;margin-top:6px}
+    :root {
+      --brand: #0ea5e9;
+      --bg: #f8fafc;
+      --card: #fff;
+      --text: #0f172a;
+      --muted: #64748b;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, sans-serif;
+    }
+    header {
+      background: var(--brand);
+      color: #fff;
+      padding: 14px 16px;
+      position: sticky;
+      top: 0;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    h1 {
+      font-size: 1.2rem;
+      line-height: 1.2;
+      margin: 0;
+    }
+    .container {
+      max-width: 840px;
+      margin: 16px auto;
+      padding: 16px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+    }
+    .tabbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    button, select {
+      border: 1px solid #2e80f0;
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 15px;
+    }
+    button.primary {
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    .hidden { display: none; }
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    footer {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+      text-align: center;
+    }
   </style>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js")
+          .catch(err => console.error("SW registration failed:", err));
+      });
+    }
+  </script>
 </head>
+
 <body>
   <header>
-    <h1>Service<br/>Pro<br/>360</h1>
+    <h1>Service Pro 360</h1>
     <div class="row">
-      <button id="btn-install">Install</button>
-      <select id="lang">
+      <button id="btn_install">Install</button>
+      <select>
         <option value="en" selected>EN</option>
         <option value="es">ES</option>
       </select>
@@ -37,28 +105,30 @@
   </header>
 
   <div class="container">
-    <div id="build" class="card small">Loading…</div>
+    <div id="build" class="card small">Loading...</div>
 
-    <div class="card">
-      <div class="tabbar">
-        <button class="primary" data-tab="dashboard">Dashboard</button>
-        <button data-tab="customers">Customers</button>
-        <button data-tab="jobs">Jobs</button>
-        <button data-tab="invoices">Invoices</button>
-        <button data-tab="settings">Settings</button>
-      </div>
+    <div class="tabbar">
+      <button class="primary" data-tab="dashboard">Dashboard</button>
+      <button data-tab="customers">Customers</button>
+      <button data-tab="jobs">Jobs</button>
+      <button data-tab="invoices">Invoices</button>
+      <button data-tab="settings">Settings</button>
+    </div>
 
-      <div id="view-dashboard"></div>
-      <div id="view-customers" class="hidden"></div>
-      <div id="view-jobs" class="hidden"></div>
-      <div id="view-invoices" class="hidden"></div>
-      <div id="view-settings" class="hidden"></div>
+    <div id="view-dashboard"></div>
+    <div id="view-customers" class="hidden"></div>
+    <div id="view-jobs" class="hidden"></div>
+    <div id="view-invoices" class="hidden"></div>
+    <div id="view-setting" class="hidden"></div>
 
-      <footer class="small">Offline • EN/ES • GPS • Photos • 4-month scheduling</footer>
-<div id="err"></div>
-</div> <!-- /.container -->
+    <footer>
+      Offline • EN/ES • GPS • Photos • 4-month scheduling
+    </footer>
 
-<!-- IMPORTANT: version query busts old caches -->
-<script defer src="app.js?v=12"></script>
+    <div id="err"></div>
+  </div>
+
+  <!-- IMPORTANT: version query busts old caches -->
+  <script defer src="./app.js?v=12"></script>
 </body>
 </html>
